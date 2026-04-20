@@ -1,27 +1,53 @@
 class Solution {
     public int[][] colorGrid(int n, int m, int[][] sources) {
-       List<int[]> q = new ArrayList<>();
-        for (int[] s : sources) {
-            q.add(new int[]{s[0], s[1], s[2]});
+        int[][] grid = new int[n][m];
+        Queue<int[]> q = new LinkedList<>();
+
+        int totalColored = 0;
+
+        for(int[] s : sources){
+            int r = s[0], c = s[1], color = s[2];
+            grid[r][c] = color;
+            totalColored++;
+            q.offer(new int[]{r, c});
         }
-        q.sort((a, b) -> Integer.compare(b[2], a[2]));
-        int[][] A = new int[n][m];
-        for (int[] s : q) {
-            A[s[0]][s[1]] = s[2];
-        }
-        int[] dx = {1, -1, 0, 0}, dy = {0, 0, 1, -1};
-        for (int k = 0; k < q.size(); k++) {
-            int[] curr = q.get(k);
-            int i = curr[0], j = curr[1], v = curr[2];
-            for (int d = 0; d < 4; d++) {
-                int x = i + dx[d], y = j + dy[d];
-                if (x >= 0 && x < n && y >= 0 && y < m && A[x][y] == 0) {
-                    A[x][y] = v;
-                    q.add(new int[]{x, y, v});
+
+        int[] dr = {1, -1, 0, 0};
+        int[] dc = {0, 0, 1, -1};
+
+        while(!q.isEmpty() && totalColored < n * m){
+            int size = q.size();
+            Map<String, Integer> updates = new HashMap<>();
+
+            while(size-- > 0){
+                int[] cur = q.poll();
+                int r = cur[0], c = cur[1];
+
+                for(int k = 0; k < 4; k++){
+                    int nr = r + dr[k];
+                    int nc = c + dc[k];
+
+                    if(nr >= 0 && nr < n && nc >= 0 && nc < m && grid[nr][nc] == 0){
+                        String key = nr + "," + nc;
+                        updates.put(key, Math.max(
+                                updates.getOrDefault(key, 0),
+                                grid[r][c]
+                        ));
+                    }
                 }
             }
-        }
-        return A;
-    }
 
+            for(Map.Entry<String, Integer> it : updates.entrySet()){
+                String[] parts = it.getKey().split(",");
+                int r = Integer.parseInt(parts[0]);
+                int c = Integer.parseInt(parts[1]);
+
+                grid[r][c] = it.getValue();
+                totalColored++;
+                q.offer(new int[]{r, c});
+            }
+        }
+
+        return grid;
+    }
 }
