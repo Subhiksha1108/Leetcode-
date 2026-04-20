@@ -1,42 +1,27 @@
 class Solution {
     public int[][] colorGrid(int n, int m, int[][] sources) {
-        int[][] grid=new int[n][m];
-        int[][] time=new int[n][m];
-        for(int[] row:time)
-        {
-            Arrays.fill(row,-1);
+       List<int[]> q = new ArrayList<>();
+        for (int[] s : sources) {
+            q.add(new int[]{s[0], s[1], s[2]});
         }
-        Queue<int[]> q=new LinkedList<>();
-        for(int[] s:sources)
-        {
-            int r=s[0],c=s[1],color=s[2];
-            grid[r][c]=color;
-            time[r][c]=0;
-            q.offer(new int[] {r,c});
+        q.sort((a, b) -> Integer.compare(b[2], a[2]));
+        int[][] A = new int[n][m];
+        for (int[] s : q) {
+            A[s[0]][s[1]] = s[2];
         }
-        int[][] dirs={{1,0},{-1,0},{0,1},{0,-1}};
-        while(!q.isEmpty())
-        {
-            int[] curr=q.poll();
-            int r=curr[0],c=curr[1];
-            for(int[] d:dirs)
-            {
-                int nr=r+d[0];
-                int nc=c+d[1];
-                if(nr<0 || nc<0 || nr>=n || nc>=m) continue;
-                if(time[nr][nc]==-1)
-                {
-                    time[nr][nc]=time[r][c]+1;
-                    grid[nr][nc]=grid[r][c];
-                    q.offer(new int[] {nr,nc});
-                }
-                else if(time[nr][nc]==time[r][c]+1)
-                {
-                    grid[nr][nc]=Math.max(grid[nr][nc],grid[r][c]);
+        int[] dx = {1, -1, 0, 0}, dy = {0, 0, 1, -1};
+        for (int k = 0; k < q.size(); k++) {
+            int[] curr = q.get(k);
+            int i = curr[0], j = curr[1], v = curr[2];
+            for (int d = 0; d < 4; d++) {
+                int x = i + dx[d], y = j + dy[d];
+                if (x >= 0 && x < n && y >= 0 && y < m && A[x][y] == 0) {
+                    A[x][y] = v;
+                    q.add(new int[]{x, y, v});
                 }
             }
         }
-        return grid;
+        return A;
     }
 
 }
